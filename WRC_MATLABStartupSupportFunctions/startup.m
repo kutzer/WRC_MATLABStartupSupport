@@ -167,12 +167,13 @@ end
 function closeFigureCallback(src,event)
 global currentFolderTimer
 
-try
-    fprintf('Figure closed\n')
+fprintf('Figure closed\n')
+try  
     stop( currentFolderTimer );
-    delete(src);
 catch ME
-    ME
+    fprintf('Error in startup.m -> closeFigureCallback.m\n\t%s\n',...
+        ME.message);
 end
+delete(src);
 
 end
