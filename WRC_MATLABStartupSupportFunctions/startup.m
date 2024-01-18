@@ -167,8 +167,12 @@ end
 function closeFigureCallback(src,event)
 global currentFolderTimer
 
-fprintf('Figure closed\n')
-stop( currentFolderTimer );
-delete(src);
+try
+    fprintf('Figure closed\n')
+    stop( currentFolderTimer );
+    delete(src);
+catch ME
+    ME
+end
 
 end
