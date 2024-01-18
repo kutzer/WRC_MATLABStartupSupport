@@ -4,36 +4,19 @@ function startup
 %
 %   M. Kutzer, 17Jan2024, USNA
 
-%% Close all open documents
-% References:
-%   [1] Luis Mendo, May 23, 2017
-%       https://stackoverflow.com/questions/28119360/how-to-close-one-or-all-currently-open-matlab-m-files-from-matlab-command-pr
+%global startupCurrentFolderTracker
 
-closeUnsaved = true; % Close unsaved documents
-
-% Acccess the editor Java object.
-desktop = com.mathworks.mde.desk.MLDesktop.getInstance;            % desktop object
-jEditor = desktop.getGroupContainer('Editor').getTopLevelAncestor; % editor object
-
-% Get the number of open documents
-D = jEditor.getGroup.getDocumentCount;
-
-% Programmatically make the editor the window in front
-jEditor.requestFocus;
-
-% Programmatically send "ALT-F4" keystroke for each open document
-%  - For closing unsaved, programmatically send "N" to close without saving
-robot = java.awt.Robot;
-for n = 1:D
-    robot.keyPress(java.awt.event.KeyEvent.VK_ALT);     % press "ALT"
-    robot.keyPress(java.awt.event.KeyEvent.VK_F4);      % press "F4"
-    robot.keyRelease(java.awt.event.KeyEvent.VK_F4);    % release "F4"
-    robot.keyRelease(java.awt.event.KeyEvent.VK_ALT);   % release "ALT"
-    if closeUnsaved
-        robot.keyPress(java.awt.event.KeyEvent.VK_N);   % press "N"
-        robot.keyRelease(java.awt.event.KeyEvent.VK_N); % release "N"
-    end
+%% Check username
+switch lower( getenv('username') )
+    case 'student'
+        % Run startup function
+    otherwise
+        fprintf('Actionable "startup.m" code only runs on the "Student" account\n');
+        return
 end
+
+%% Close all open documents
+closeMatlabEditor(true);
 
 %% Change current folder to default working path
 cd( userpath );
@@ -64,28 +47,18 @@ if ~isempty(filenames)
     % Zip contents
     zip(fullfile(wd1,zipName),filenames);
     % Change file extension
-    movefile(...
-        fullfile(wd1,[zipName,'.zip']),...
-        fullfile(wd1,[zipName,'.mArc']));
+    zip2mArc(wd1,zipName);
 end
 
 %% Delete directory contents
-for i = 1:numel(filenames)
-    if isfolder(filenames{i})
-        % Remove folder
-        rmdir(filenames{i},'s');
-    else
-        % Remove file
-        delete(filenames{i});
-    end
-end
+deleteFiles(filenames);
 
 %% Create background figure
 fig = figure('Name','startup.m','Tag','startup.m','Units','Normalized',...
     'Position',[0.10,0.85,0.15,0.05],'MenuBar','None',...
     'NumberTitle','off','Resize','off','Toolbar','None');
 
-% Create panel 
+% Create panel
 pnl = uipanel('Parent',fig,'Units','Normalized',...
     'Position',[0,0,1,1],'Title','startup.m',...
     'TitlePosition','CenterTop','Tag','startup.m');
@@ -95,3 +68,83 @@ cnt = uicontrol('Parent',pnl,'Style','Text','Units','Normalized',...
     'Position',[0,0,1,1],'FontUnits','Normalized','FontSize',0.15,...
     'HorizontalAlignment','center','Tag','startup.m',...
     'String',sprintf('wd0: %s\nwd1: %s\n%s',wd0,wd1,[zipName,'.mArc']));
+
+%% Create timer-based current directory tracking
+currentFolderTimer = timer('StartDelay',1,'Period',1,...
+    'TasksToExecute',15,'BusyMode','drop','ExecutionMode','fixedRate',...
+    'Name','Current Folder Tracker (startup.m)',...
+    'Tag','Current Folder Tracker (startup.m)',...
+    'ObjectVisibility','on');
+
+currentFolderTimer.StartFcn = @currentFolderCallbackStart;
+currentFolderTimer.StopFcn = @currentFolderCallbackStop;
+currentFolderTimer.TimerFcn = @currentFolderCallback;
+currentFolderTimer.TimerFcn = @currentFolderCallback;
+currentFolderTimer.ErrorFcn = @currentFolderCallbackError;
+
+start(currentFolderTimer)
+startupCurrentFolders = {};
+startupFolderContents = {};
+startupNewFilenames = {};
+%
+
+% Internal functions
+    function currentFolderCallbackStart(src,event)
+        fprintf('I am StartFunction\n');
+        appendNewFiles
+    end
+
+    function currentFolderCallbackStop(src,event)
+        fprintf('I am StopFcn\n');
+        appendNewFiles
+    end
+
+    function currentFolderCallback(src,event)
+        fprintf('I am TimerFcn\n');
+        appendNewFiles
+        startupNewFilenames
+    end
+
+    function currentFolderCallbackError(src,event)
+        fprintf('I am ErrorFcn\n');
+    end
+
+    function appendNewFiles
+        newDir = pwd;
+        if isempty(startupCurrentFolders)
+            % Save current folder
+            startupCurrentFolders{1} = newDir;
+            % Define all file/folder names within current folder
+            dd = dir(newDir);
+            startupFolderContents{1} = {dd.name};
+        else
+            if any( matches(startupCurrentFolders,newDir) )
+                % Folder has already been added, compare contents
+                
+                % Find folder index
+                bin = matches(startupCurrentFolders,newDir);
+                
+                % Find current folder contents
+                dd = dir(newDir);
+                newFolderContents = {dd.name};
+                
+                % Check current folder contents
+                for ii = 1:numel(newFolderContents)
+                    if ~any( matches(startupFolderContents{bin},newFolderContents{ii}) )
+                        startupNewFilenames{end+1} = fullfile(newDir,newFolderContents{ii});
+                    end
+                end
+            else
+                % Folder is new, add to the list
+                
+                ii = numel(startupCurrentFolders) + 1;
+                % Save current folder
+                startupCurrentFolders{ii} = newDir;
+                % Define all file/folder names within current folder
+                dd = dir(newDir);
+                startupFolderContents{ii} = {dd.name};
+            end
+        end
+    end
+
+end
