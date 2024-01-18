@@ -4,7 +4,7 @@ function startup
 %
 %   M. Kutzer, 17Jan2024, USNA
 
-global startupInfo
+global startupInfo currentFolderTimer
 startupInfo.CurrentFolders = {};
 startupInfo.FolderContents = {};
 startupInfo.NewFilenames = {};
@@ -66,7 +66,8 @@ end
 %% Create background figure
 fig = figure('Name','startup.m','Tag','startup.m','Units','Normalized',...
     'Position',[0.10,0.85,0.15,0.05],'MenuBar','None',...
-    'NumberTitle','off','Resize','off','Toolbar','None');
+    'NumberTitle','off','Resize','off','Toolbar','None',...
+    'CloseRequestFcn',@closeFigureCallback);
 
 % Create panel
 pnl = uipanel('Parent',fig,'Units','Normalized',...
@@ -106,7 +107,8 @@ fprintf('I am StartFunction\n');
 try
     startupInfo = appendNewFiles(startupInfo);
 catch ME
-    ME
+    fprintf('Error in startup.m -> currentFolderCallbackStart.m\n\t%s\n',...
+        ME.message);
 end
 
 end
@@ -119,7 +121,23 @@ fprintf('I am StopFcn\n');
 try
     startupInfo = appendNewFiles(startupInfo);
 catch ME
-    ME
+    fprintf('Error in startup.m -> currentFolderCallbackStop.m\n\t%s\n',...
+        ME.message);
+end
+
+% Zip new contents
+if ~isempty(startupInfo.NewFilenames)
+    % Zip contents
+    % TODO - deconflict common filenames
+    zipName = sprintf('currentWork_%s',datestr(now,'yy-mm-dd_hhMMss'));
+    zip(fullfile(userpath,zipName),startupInfo.NewFilenames);
+
+    % Open file explorer to user path location
+    winopen( userpath );
+
+    % Open web browser to Google Drive
+    url = 'https://accounts.google.com/v3/signin/identifier?continue=http%3A%2F%2Fdrive.google.com%2F%3Futm_source%3Den&ec=asw-drive-hero-goto&ifkv=ASKXGp2L3r8s3HbcyTQP23BYzP01WVT-npzhcdR7rNPMy7RjUi1cAMKaV6FJRE2hpuRhHiDLIIYpQQ&ltmpl=drive&passive=true&service=wise&usp=gtd&utm_campaign=web&utm_content=gotodrive&utm_medium=button&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S1258750083%3A1705607539416545&theme=glif';
+    web(url,'-browser');
 end
 
 end
@@ -132,7 +150,8 @@ fprintf('I am TimerFcn\n');
 try
     startupInfo = appendNewFiles(startupInfo);
 catch ME
-    ME
+    fprintf('Error in startup.m -> currentFolderCallback.m\n\t%s\n',...
+        ME.message);
 end
 
 end
@@ -142,5 +161,14 @@ function currentFolderCallbackError(src,event)
 global startupInfo
 
 fprintf('I am ErrorFcn\n');
+
+end
+
+function closeFigureCallback(src,event)
+global currentFolderTimer
+
+fprintf('Figure closed\n')
+stop( currentFolderTimer );
+delete(src);
 
 end
