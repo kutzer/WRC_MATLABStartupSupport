@@ -101,9 +101,12 @@ end
 %% Internal functions
 % -------------------------------------------------------------------------
 function currentFolderCallbackStart(src,event)
+
 global startupInfo
 
-fprintf('I am StartFunction\n');
+% Debug
+fprintf('Running StartFunction\n');
+
 try
     startupInfo = appendNewFiles(startupInfo);
 catch ME
@@ -115,9 +118,12 @@ end
 
 % -------------------------------------------------------------------------
 function currentFolderCallbackStop(src,event)
+
 global startupInfo
 
-fprintf('I am StopFcn\n');
+% Debug
+fprintf('Running StopFcn\n');
+
 try
     startupInfo = appendNewFiles(startupInfo);
 catch ME
@@ -144,9 +150,12 @@ end
 
 % -------------------------------------------------------------------------
 function currentFolderCallback(src,event)
+
 global startupInfo
 
-fprintf('I am TimerFcn\n');
+% Debug
+fprintf('Running TimerFcn\n');
+
 try
     startupInfo = appendNewFiles(startupInfo);
 catch ME
@@ -158,16 +167,22 @@ end
 
 % -------------------------------------------------------------------------
 function currentFolderCallbackError(src,event)
+
 global startupInfo
 
-fprintf('I am ErrorFcn\n');
+% Debug
+fprintf('Running ErrorFcn\n');
 
 end
 
+% -------------------------------------------------------------------------
 function closeFigureCallback(src,event)
+
 global currentFolderTimer
 
+% Debug
 fprintf('Figure closed\n')
+
 try  
     stop( currentFolderTimer );
 catch ME
