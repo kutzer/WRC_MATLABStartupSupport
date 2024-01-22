@@ -8,6 +8,7 @@ global startupInfo currentFolderTimer
 startupInfo.CurrentFolders = {};
 startupInfo.FolderContents = {};
 startupInfo.NewFilenames = {};
+startupInfo.StartupTime = now;
 
 %% Check username
 debugOn = false;
