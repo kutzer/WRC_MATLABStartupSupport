@@ -1,0 +1,93 @@
+(Get-ChildItem -Path c:\*.* -Filter *.pst | ? {
+  $_.LastWriteTime -gt (Get-Date).AddDays(-3) 
+}).Count
+
+(Get-ChildItem -Path c:\*.* | ? {
+  $_.LastWriteTime -gt (Get-Date).AddMinutes(-74) 
+}).Count
+
+Get-ChildItem -Path . -Recurse| ? {$_.LastWriteTime -gt (Get-Date).AddDays(-4)}
+
+$compareDate = (Get-Date).AddDays(-3)    
+@(Get-ChildItem -Path c:\pstbak\*.* -Filter '*.pst','*.mdb' -Recurse | Where-Object { $_.LastWriteTime -gt $compareDate}).Count
+
+Get-ChildItem -Path . -Recurse| ? {$_.LastWriteTime -gt (Get-Date).AddMinutes(-360)}
+
+Get-ChildItem -Path C:\Users\kutzer\*.* -Recurse| ? {$_.LastWriteTime -gt (Get-Date).AddSeconds(-360)}
+
+Get-ChildItem "C:\Program Files\*.*" -Recurse | 
+Foreach {
+$lastupdatetime=$_.LastWriteTime
+$nowtime = get-date
+if (($nowtime - $lastupdatetime).totaldays -le 3)
+{
+Write-Host "File modified: "$_
+}
+}
+
+Get-ChildItem -Path "C:\Users\kutzer\Documents\*.*" -Recurse| ? ({$_.LastWriteTime -gt (Get-Date).AddSeconds(-360)})
+
+
+
+$compareDate = (Get-Date).AddDays(-3)    
+@(Get-ChildItem -Path c:\Users\Kutzer\*.* -Filter '*.pst','*.mdb' -Recurse | Where-Object { $_.LastWriteTime -gt $compareDate})
+
+
+
+et-ChildItem 'E:\' -Force -Recurse | Select-Object -ExpandProperty FullName | Out-File -Encoding utf8 "C:\Users\Me\Desktop\listing.txt"
+
+Get-ChildItem 'C:\Users\kutzer\Documents\*.*' -Force -Recurse | Select-Object -ExpandProperty FullName | Out-File -Encoding utf8 "C:\Users\Kutzer\Desktop\listing.txt"
+
+
+
+
+
+
+
+
+# Specify the directory path
+$directoryPath = "C:\Users\kutzer\Documents\GitHub\WRC_MATLABStartupSupport\WRC_MATLABStartupSupportFunctions"
+
+# Specify the file extensions to filter
+$fileExtensions = @("*.m", "*.mat")
+
+# Calculate the current time and the time 360 seconds ago
+$currentDateTime = Get-Date
+$startTime = $currentDateTime.AddSeconds(-360)
+
+# Get files in the specified directory and its subdirectories with specified extensions created within the last 360 seconds
+$recentFiles = Get-ChildItem -Path $directoryPath -Recurse | Where-Object {
+    ($_.CreationTime -ge $startTime) -and ($fileExtensions -contains $_.Extension)
+}
+
+# Display the list of recent files
+foreach ($file in $recentFiles) {
+    Write-Host "File Name: $($file.FullName)"
+    Write-Host "Creation Time: $($file.CreationTime)"
+    Write-Host "------------------------"
+}
+
+
+
+% --------------------
+
+
+# Specify the directory path
+$directoryPath = "C:\Users\kutzer\Documents\GitHub\WRC_MATLABStartupSupport\WRC_MATLABStartupSupportFunctions"
+
+# Specify the file extensions to filter
+$fileExtensions = @(".m", ".mat")
+
+# Calculate the current time and the time 360 seconds ago
+$currentDateTime = Get-Date
+$startTime = $currentDateTime.AddSeconds(-360)
+
+# Get files in the specified directory and its subdirectories with specified extensions modified within the last 360 seconds
+$recentFiles = Get-ChildItem -Path $directoryPath -Recurse | Where-Object {
+    ($_.LastWriteTime -ge $startTime) -and ($fileExtensions -contains $_.Extension)
+}
+
+# Display the list of recent files
+foreach ($file in $recentFiles) {
+    Write-Host "$($file.FullName)"
+}
