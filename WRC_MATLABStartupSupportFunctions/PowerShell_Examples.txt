@@ -1,79 +1,7 @@
-(Get-ChildItem -Path c:\*.* -Filter *.pst | ? {
-  $_.LastWriteTime -gt (Get-Date).AddDays(-3) 
-}).Count
-
-(Get-ChildItem -Path c:\*.* | ? {
-  $_.LastWriteTime -gt (Get-Date).AddMinutes(-74) 
-}).Count
-
-Get-ChildItem -Path . -Recurse| ? {$_.LastWriteTime -gt (Get-Date).AddDays(-4)}
-
-$compareDate = (Get-Date).AddDays(-3)    
-@(Get-ChildItem -Path c:\pstbak\*.* -Filter '*.pst','*.mdb' -Recurse | Where-Object { $_.LastWriteTime -gt $compareDate}).Count
-
-Get-ChildItem -Path . -Recurse| ? {$_.LastWriteTime -gt (Get-Date).AddMinutes(-360)}
-
-Get-ChildItem -Path C:\Users\kutzer\*.* -Recurse| ? {$_.LastWriteTime -gt (Get-Date).AddSeconds(-360)}
-
-Get-ChildItem "C:\Program Files\*.*" -Recurse | 
-Foreach {
-$lastupdatetime=$_.LastWriteTime
-$nowtime = get-date
-if (($nowtime - $lastupdatetime).totaldays -le 3)
-{
-Write-Host "File modified: "$_
-}
-}
-
-Get-ChildItem -Path "C:\Users\kutzer\Documents\*.*" -Recurse| ? ({$_.LastWriteTime -gt (Get-Date).AddSeconds(-360)})
-
-
-
-$compareDate = (Get-Date).AddDays(-3)    
-@(Get-ChildItem -Path c:\Users\Kutzer\*.* -Filter '*.pst','*.mdb' -Recurse | Where-Object { $_.LastWriteTime -gt $compareDate})
-
-
-
-et-ChildItem 'E:\' -Force -Recurse | Select-Object -ExpandProperty FullName | Out-File -Encoding utf8 "C:\Users\Me\Desktop\listing.txt"
-
-Get-ChildItem 'C:\Users\kutzer\Documents\*.*' -Force -Recurse | Select-Object -ExpandProperty FullName | Out-File -Encoding utf8 "C:\Users\Kutzer\Desktop\listing.txt"
-
-
-
-
-
-
-
-
-# Specify the directory path
-$directoryPath = "C:\Users\kutzer\Documents\GitHub\WRC_MATLABStartupSupport\WRC_MATLABStartupSupportFunctions"
-
-# Specify the file extensions to filter
-$fileExtensions = @("*.m", "*.mat")
-
-# Calculate the current time and the time 360 seconds ago
-$currentDateTime = Get-Date
-$startTime = $currentDateTime.AddSeconds(-360)
-
-# Get files in the specified directory and its subdirectories with specified extensions created within the last 360 seconds
-$recentFiles = Get-ChildItem -Path $directoryPath -Recurse | Where-Object {
-    ($_.CreationTime -ge $startTime) -and ($fileExtensions -contains $_.Extension)
-}
-
-# Display the list of recent files
-foreach ($file in $recentFiles) {
-    Write-Host "File Name: $($file.FullName)"
-    Write-Host "Creation Time: $($file.CreationTime)"
-    Write-Host "------------------------"
-}
-
-
-
 % --------------------
 
-
 # Specify the directory path
-$directoryPath = "C:\Users\kutzer\Documents\GitHub\WRC_MATLABStartupSupport\WRC_MATLABStartupSupportFunctions"
+$directoryPath = "C:\Users\kutzer\Documents"
 
 # Specify the file extensions to filter
 $fileExtensions = @(".m", ".mat")
@@ -90,4 +18,42 @@ $recentFiles = Get-ChildItem -Path $directoryPath -Recurse | Where-Object {
 # Display the list of recent files
 foreach ($file in $recentFiles) {
     Write-Host "$($file.FullName)"
+}
+
+% -------------------------
+
+# Set the path to the directory you want to open
+$folderPath = "C:\Users\kutzer\Documents\MATLAB"
+
+# Open the folder in File Explorer
+Start-Process "explorer.exe" -ArgumentList $folderPath
+
+# Wait for the Explorer window to open
+Start-Sleep -Seconds 2
+
+# Check if the User32 class already exists
+if (-not ([System.Management.Automation.PSTypeName]'User32').Type) {
+    # Import the necessary user32.dll functions
+    Add-Type @"
+        using System;
+        using System.Runtime.InteropServices;
+        public class User32 {
+            [DllImport("user32.dll", SetLastError = true)]
+            public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+            [DllImport("user32.dll")]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        }
+"@
+}
+
+# Find the Explorer window by its title
+$explorerWindow = [User32]::FindWindow([NullString]::Value, "File Explorer")
+
+if ($explorerWindow -ne [IntPtr]::Zero) {
+    # Maximize the window to half the screen
+    [User32]::ShowWindow($explorerWindow, 3)  # 3 is the code for maximizing the window
+} else {
+    Write-Host "Explorer window not found."
 }
