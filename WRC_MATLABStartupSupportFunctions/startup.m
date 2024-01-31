@@ -32,18 +32,22 @@ end
 
 %% Close all open documents
 if ~startupInfo.DebugOn
-    % Add some delay before closing the MATLAB editor
-    % TODO - Do this more elegantly
-    drawnow;
-    pause(1);
-    drawnow;
     
-    % Close MATLAB editor
-    try
-        closeMatlabEditor(true);
-    catch ME
-        fprintf('Unable to close editor.\n');
+    % TODO - Do this more elegantly
+    for i = 1:10
+        % Add some delay before closing the MATLAB editor
+        drawnow
+        pause(0.05);
+        
+        % Close MATLAB editor
+        try
+            closeMatlabEditor(true);
+            break
+        catch ME
+            %fprintf('Unable to close editor.\n');
+        end
     end
+    
 end
 
 %% Change current folder to default working path
