@@ -14,10 +14,9 @@ function installWRC_MATLABStartupSupport(replaceExisting)
 %   Support only if no copy of the WRC MATLAB Startup Support exists in the 
 %   MATLAB root.
 %
-%   M. Kutzer 03Nov2020, USNA
+%   M. Kutzer, 31Jan2024, USNA
 
 % Updates
-%   08Jan2021 - Updated ToolboxUpdate & questdlg
 
 % TODO - Allow users to create a local version if admin rights are not
 % possible.
