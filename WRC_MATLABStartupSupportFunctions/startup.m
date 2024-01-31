@@ -1,6 +1,13 @@
 function startup
 % STARTUP automatically runs at startup to clear contents from the default
-% folder location on close.
+% folder location on close and package new files created during a MATLAB
+% session.
+%
+%   NOTES:
+%       (1) This function is only fully supported on Windows OS. Not all
+%           functionality extends to other operating systems.
+%       (2) This function is currently username-specific and will only run
+%           on accounts with the username "Student."
 %
 %   M. Kutzer, 17Jan2024, USNA
 
