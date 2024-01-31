@@ -19,11 +19,11 @@ narginchk(2,2);
 
 % Check filenames
 tf = isfile(fnames);
-if nnz(tf) > 0
+if nnz(~tf) > 0
 
     % Display status to user
     fprintf('Ignoring files:\n')
-    for i = find(tf)
+    for i = find(~tf)
         fprintf('\t"%s"\n',fnames{i});
     end
 
@@ -34,7 +34,7 @@ end
 
 % Check path name
 if isfolder(pname)
-    error('Specified path already exists.');
+    warning('Specified path already exists.');
 end
 
 %% Make new directory
@@ -63,8 +63,12 @@ for i = 1:numel(rFnames)
         [status,msg] = mkdir(nPname);
 
         if ~status
-            % Something went wrong
-            msg
+            % Unable to create directory
+            fprintf([...
+                'Unable to create directory:',...
+                '\t%s\n',...
+                '\n',...
+                '%s\n'],nPname,msg);
         end
 
     end
@@ -74,7 +78,7 @@ end
 newFnames = {};
 oldFnames = {};
 
-for i = 1:numel(rFrames)
+for i = 1:numel(rFnames)
     
     % Define source
     source = fullfile(commonPname,rFnames{i});
@@ -94,7 +98,7 @@ for i = 1:numel(rFrames)
     % Check for error(s)
     if ~status
         fprintf([...
-            ['Unable to copy:',...
+            'Unable to copy:',...
             '\t     Source: %s\n',...
             '\tDestination: %s\n',...
             '\n',...
