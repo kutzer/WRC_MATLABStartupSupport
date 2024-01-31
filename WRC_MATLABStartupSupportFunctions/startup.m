@@ -238,7 +238,9 @@ exts = {... % MATLAB Formats
 spaths = {'Desktop','Documents','Downloads','Music','Pictures','Videos'};
 
 % Find new files
+gpTimer = gifProcessWait(0,'Finding new files created...');
 fnames = findNewFilesAfterTime(t0,exts,spaths);
+gifProcessWait(gpTimer);
 
 % Package files
 % -> Define folder to pack files
