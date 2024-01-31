@@ -6,14 +6,18 @@ function [rFnames,commonPname] = removeCommonPath(fnames,commonPname)
 %
 %   rFnames = removeCommonPath(fnames,commonPname)
 %
+%   [rFnames,commonPname] = removeCommonPath(___)
+%
 %   Input(s)
 %            fnames - cell array containing full file or path names
 %       commonPname - shared path name
 %
 %   Output(s)
-%       rFnames - cell array containing file names with common path
-%                 removed. Note that folder names and files that do not
-%                 share a common path will be removed.
+%           rFnames - cell array containing file names with common path
+%                     removed. Note that folder names and files that do not
+%                     share a common path will be removed.
+%       commonPname - cell defining common path. If no common path is
+%                     found, commonPname is [].
 %
 %   See also findCommonPath
 %
