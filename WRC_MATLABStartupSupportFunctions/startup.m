@@ -273,6 +273,8 @@ drawnow;
 pause(0.5);
 
 % Open zip file location
-winopen(userpath)
+%winopen(userpath)
+cmdStr = sprintf('start explorer "%s"',userpath);
+system( cmdStr );
 
 end
