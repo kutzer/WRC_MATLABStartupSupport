@@ -57,6 +57,8 @@ for i = 1:numel(d)
             % Ignore
         case 'apriltag-imgs'
             % Ignore
+        case 'apriltag-imgs_path.mat'
+            % Ignore
         otherwise
             j = j+1;
             filenames{j} = fullfile(wd0,d(i).name);
@@ -248,15 +250,27 @@ pack_pname = fullfile(userpath,...
 % Zip packed files
 zip( [pack_pname,'.zip'],pack_pname );
 
+% Delete pack directory
+deleteFiles( {pack_pname} );
+
 % Remove files
 if ~startupInfo.DebugOn
     % Delete found files
     deleteFiles(oldFnames);
-    
-    % Delete pack directory
-    deleteFiles(pack_pname);
 end
 delete(src);
 
+
+% Open incognito chrome browser window to Google Drive
+cmdStr = 'start chrome.exe --incognito';
+urlStr = 'https://accounts.google.com/v3/signin/identifier?hl=en&ifkv=ASKXGp30QkpdUTispLLCLftBiYkzlX40npL-ZuFbsyozU8RQysvILxbGGX2ZY46uW_tATjyLzXwmjQ&service=writely&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-653431847%3A1706728260630640&theme=glif';
+system( sprintf('%s "%s"',cmdStr,urlStr) );
+
+% Wait for window to open
+drawnow;
+pause(0.5);
+
+% Open zip file location
+winopen(userpath)
 
 end
