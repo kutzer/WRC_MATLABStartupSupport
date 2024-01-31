@@ -1,5 +1,5 @@
 function startup
-% STARTUP automatically runs at startup to clear contents from the default
+% STARTUP automatically runs at startup to clear contents from the defaultr
 % folder location on close and package new files created during a MATLAB
 % session.
 %
@@ -11,29 +11,32 @@ function startup
 %
 %   M. Kutzer, 17Jan2024, USNA
 
-global startupInfo currentFolderTimer
-startupInfo.CurrentFolders = {};
-startupInfo.FolderContents = {};
-startupInfo.NewFilenames = {};
+global startupInfo %currentFolderTimer
+
+%startupInfo.CurrentFolders = {};
+%startupInfo.FolderContents = {};
+%startupInfo.NewFilenames   = {};
+
+startupInfo.DebugOn     = false;
 startupInfo.StartupTime = now;
 
 %% Check username
-debugOn = false;
+startupInfo.DebugOn = false;
 switch lower( getenv('username') )
     case 'student'
         % Run startup function
     otherwise
         fprintf('Actionable "startup.m" code only runs on the "Student" account\n -> Debugging\n');
-        debugOn = true;
+        startupInfo.DebugOn = true;
 end
 
 %% Close all open documents
-if ~debugOn
+if ~startupInfo.DebugOn
     closeMatlabEditor(true);
 end
 
 %% Change current folder to default working path
-if ~debugOn
+if ~startupInfo.DebugOn
     cd( userpath );
 end
 
@@ -52,6 +55,8 @@ for i = 1:numel(d)
             % Ignore
         case '..'
             % Ignore
+        case 'apriltag-imgs'
+            % Ignore
         otherwise
             j = j+1;
             filenames{j} = fullfile(wd0,d(i).name);
@@ -67,7 +72,7 @@ if ~isempty(filenames)
 end
 
 %% Delete directory contents
-if ~debugOn
+if ~startupInfo.DebugOn
     deleteFiles(filenames);
 end
 
@@ -75,7 +80,13 @@ end
 fig = figure('Name','startup.m','Tag','startup.m','Units','Normalized',...
     'Position',[0.10,0.85,0.15,0.05],'MenuBar','None',...
     'NumberTitle','off','Resize','off','Toolbar','None',...
-    'CloseRequestFcn',@closeFigureCallback);
+    'CloseRequestFcn',@closeFigureCallback,...
+    'Visible','off','HandleVisibility','callback');
+
+if startupInfo.DebugOn
+    % Show figure
+    set(fig,'Visible','on','HandleVisibility','on');
+end
 
 % Create panel
 pnl = uipanel('Parent',fig,'Units','Normalized',...
@@ -89,6 +100,8 @@ cnt = uicontrol('Parent',pnl,'Style','Text','Units','Normalized',...
     'String',sprintf('wd0: %s\nwd1: %s\n%s',wd0,wd1,[zipName,'.mArc']));
 
 %% Create timer-based current directory tracking
+% This code is replaced by "findNewFilesAfterTime.m"
+%{
 currentFolderTimer = timer('StartDelay',1,'Period',1,...
     'TasksToExecute',15,'BusyMode','drop','ExecutionMode','fixedRate',...
     'Name','Current Folder Tracker (startup.m)',...
@@ -102,12 +115,13 @@ currentFolderTimer.TimerFcn = @currentFolderCallback;
 currentFolderTimer.ErrorFcn = @currentFolderCallbackError;
 
 start(currentFolderTimer)
-
+%}
 
 end
 
 %% Internal functions
 % -------------------------------------------------------------------------
+%{
 function currentFolderCallbackStart(src,event)
 
 global startupInfo
@@ -123,8 +137,9 @@ catch ME
 end
 
 end
-
+%}
 % -------------------------------------------------------------------------
+%{
 function currentFolderCallbackStop(src,event)
 
 global startupInfo
@@ -155,8 +170,9 @@ if ~isempty(startupInfo.NewFilenames)
 end
 
 end
-
+%}
 % -------------------------------------------------------------------------
+%{
 function currentFolderCallback(src,event)
 
 global startupInfo
@@ -172,8 +188,9 @@ catch ME
 end
 
 end
-
+%}
 % -------------------------------------------------------------------------
+%{
 function currentFolderCallbackError(src,event)
 
 global startupInfo
@@ -182,14 +199,15 @@ global startupInfo
 fprintf('Running ErrorFcn\n');
 
 end
-
+%}
 % -------------------------------------------------------------------------
 function closeFigureCallback(src,event)
-
+%{
 global currentFolderTimer
 
 % Debug
 fprintf('Figure closed\n')
+
 
 try  
     stop( currentFolderTimer );
@@ -197,6 +215,48 @@ catch ME
     fprintf('Error in startup.m -> closeFigureCallback.m\n\t%s\n',...
         ME.message);
 end
+%}
+global startupInfo
+
+% Define search start time
+t0 = startupInfo.StartupTime;
+
+% Define search file extensions
+exts = {... % MATLAB Formats
+    '.m','.mat','.fig','.asv',... 
+    ...     % Image Formats
+    '.bmp','.eps','.emf','.jpg','.pcx','pbm','.pdf','.png','.ppm',...
+    '.svg','.tif',...
+    ...     % Video Formats
+    '.asf','.asx','.avi','.m4v','.mj2','.mov','.mp4','.mpg','.wmv',...
+    ...     % Other Formats                      
+    '.txt','.doc','.docx','.ppt','.pptx','.xls','.xlsx'};
+
+% Define search paths
+spaths = {'Desktop','Documents','Downloads','Music','Pictures','Videos'};
+
+% Find new files
+fnames = findNewFilesAfterTime(t0,exts,spaths);
+
+% Package files
+% -> Define folder to pack files
+pack_pname = fullfile(userpath,...
+    sprintf('savedFiles_%s',datestr(now,'yyyymmddHHMMSS')) );
+% -> Pack files
+[newFnames,oldFnames] = packageFiles(fnames,pack_pname);
+
+% Zip packed files
+zip( [pack_pname,'.zip'],pack_pname );
+
+% Remove files
+if ~startupInfo.DebugOn
+    % Delete found files
+    deleteFiles(oldFnames);
+    
+    % Delete pack directory
+    deleteFiles(pack_pname);
+end
 delete(src);
+
 
 end
