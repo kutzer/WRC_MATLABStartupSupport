@@ -30,8 +30,8 @@ if nargin < 2
     commonPname = findCommonPath(fnames);
 
     if isempty(commonPname)
-        warning('No common path found for specified files.');
-        rFnames = [];
+        %warning('No common path found for specified files.');
+        rFnames = {};
         return
     end
 end
