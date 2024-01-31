@@ -50,15 +50,17 @@ for i = 1:numel(fnames)
 
     if numel(fParts) > n
         tf = matches(fParts(1:n),cParts);
-        if nnz(tf) > 0
-            cParts = fParts(~tf);
-            rFnames{i+1} = strjoin(cParts,filesep);
+        if all(tf)
+            nParts = fParts( (n+1):end );
+            rFnames{end+1} = strjoin(nParts,filesep);
         else
             % File does not share a common path
-            warning([...
+            fprintf([...
                 'The following file does not share the common path:\n' ...
-                '\t\t  File Name: %s\n',...
-                '\t\tCommon Path: %s'],fname,commonPname);
+                '\t  File Name: %s\n',...
+                '\tCommon Path: %s\n'],fname,commonPname);
+
+            tf
         end
     else
         % File name is too short
