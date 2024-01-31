@@ -30,9 +30,17 @@ if numel(fnames) == 1
 end
 
 %% Find common path
+fparts = {};
+nparts = [];
 for i = 1:numel(fnames)
     fparts{i} = regexp(fnames{i},filesep,'split');
     nparts(i) = numel(fparts{i});
+end
+
+if isempty(nparts)
+    % No common path found
+    pname = [];
+    return
 end
 npartsMin = min(nparts);
 
