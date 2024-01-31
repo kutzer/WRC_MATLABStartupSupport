@@ -239,6 +239,7 @@ spaths = {'Desktop','Documents','Downloads','Music','Pictures','Videos'};
 
 % Find new files
 gpTimer = gifProcessWait(0,'Finding new files created...');
+pause(0.5);
 fnames = findNewFilesAfterTime(t0,exts,spaths);
 gifProcessWait(gpTimer);
 
