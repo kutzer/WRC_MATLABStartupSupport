@@ -220,62 +220,67 @@ end
 %}
 global startupInfo
 
-% Define search start time
-t0 = startupInfo.StartupTime;
+try
+    % Define search start time
+    t0 = startupInfo.StartupTime;
 
-% Define search file extensions
-exts = {... % MATLAB Formats
-    '.m','.mat','.fig','.asv',... 
-    ...     % Image Formats
-    '.bmp','.eps','.emf','.jpg','.pcx','pbm','.pdf','.png','.ppm',...
-    '.svg','.tif',...
-    ...     % Video Formats
-    '.asf','.asx','.avi','.m4v','.mj2','.mov','.mp4','.mpg','.wmv',...
-    ...     % Other Formats                      
-    '.txt','.doc','.docx','.ppt','.pptx','.xls','.xlsx'};
+    % Define search file extensions
+    exts = {... % MATLAB Formats
+        '.m','.mat','.fig','.asv',...
+        ...     % Image Formats
+        '.bmp','.eps','.emf','.jpg','.pcx','pbm','.pdf','.png','.ppm',...
+        '.svg','.tif',...
+        ...     % Video Formats
+        '.asf','.asx','.avi','.m4v','.mj2','.mov','.mp4','.mpg','.wmv',...
+        ...     % Other Formats
+        '.txt','.doc','.docx','.ppt','.pptx','.xls','.xlsx'};
 
-% Define search paths
-spaths = {'Desktop','Documents','Downloads','Music','Pictures','Videos'};
+    % Define search paths
+    spaths = {'Desktop','Documents','Downloads','Music','Pictures','Videos'};
 
-% Find new files
-gpTimer = gifProcessWait(0,'Finding new files created...');
-pause(0.5);
-fnames = findNewFilesAfterTime(t0,exts,spaths);
-gifProcessWait(gpTimer);
+    % Find new files
+    gpTimer = gifProcessWait(0,'Finding new files created...');
+    pause(0.5);
+    fnames = findNewFilesAfterTime(t0,exts,spaths);
+    gifProcessWait(gpTimer);
 
-% Package files
-% -> Define folder to pack files
-pack_pname = fullfile(userpath,...
-    sprintf('savedFiles_%s',datestr(now,'yyyymmddHHMMSS')) );
-% -> Pack files
-[newFnames,oldFnames] = packageFiles(fnames,pack_pname);
+    % Package files
+    % -> Define folder to pack files
+    pack_pname = fullfile(userpath,...
+        sprintf('savedFiles_%s',datestr(now,'yyyymmddHHMMSS')) );
+    % -> Pack files
+    [newFnames,oldFnames] = packageFiles(fnames,pack_pname);
 
-% Zip packed files
-zip( [pack_pname,'.zip'],pack_pname );
+    % Zip packed files
+    zip( [pack_pname,'.zip'],pack_pname );
 
-% Delete pack directory
-deleteFiles( {pack_pname} );
+    % Delete pack directory
+    deleteFiles( {pack_pname} );
 
-% Remove files
-if ~startupInfo.DebugOn
-    % Delete found files
-    deleteFiles(oldFnames);
+    % Remove files
+    if ~startupInfo.DebugOn
+        % Delete found files
+        deleteFiles(oldFnames);
+    end
+
+    % Open incognito chrome browser window to Google Drive
+    cmdStr = 'start chrome.exe --incognito';
+    urlStr = 'https://accounts.google.com/v3/signin/identifier?hl=en&ifkv=ASKXGp30QkpdUTispLLCLftBiYkzlX40npL-ZuFbsyozU8RQysvILxbGGX2ZY46uW_tATjyLzXwmjQ&service=writely&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-653431847%3A1706728260630640&theme=glif';
+    system( sprintf('%s "%s"',cmdStr,urlStr) );
+
+    % Wait for window to open
+    drawnow;
+    pause(0.5);
+
+    % Open zip file location
+    %winopen(userpath)
+    cmdStr = sprintf('start explorer "%s"',userpath);
+    system( cmdStr );
+catch ME
+    delete(src);
+    ME.throw;
 end
+
 delete(src);
-
-
-% Open incognito chrome browser window to Google Drive
-cmdStr = 'start chrome.exe --incognito';
-urlStr = 'https://accounts.google.com/v3/signin/identifier?hl=en&ifkv=ASKXGp30QkpdUTispLLCLftBiYkzlX40npL-ZuFbsyozU8RQysvILxbGGX2ZY46uW_tATjyLzXwmjQ&service=writely&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-653431847%3A1706728260630640&theme=glif';
-system( sprintf('%s "%s"',cmdStr,urlStr) );
-
-% Wait for window to open
-drawnow;
-pause(0.5);
-
-% Open zip file location
-%winopen(userpath)
-cmdStr = sprintf('start explorer "%s"',userpath);
-system( cmdStr );
 
 end
