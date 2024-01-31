@@ -7,6 +7,11 @@ function deleteFiles(filenames)
 %
 %   M. Kutzer, 18Jan2024, USNA
 
+%% Check for empty input
+if isempty(filenames)
+    return
+end
+
 %% Delete all files and/or folders
 for i = 1:numel(filenames)
     if isfolder(filenames{i})
