@@ -12,6 +12,10 @@ if isempty(filenames)
     return
 end
 
+if ~iscell(filenames)
+    filenames = {filenames};
+end
+
 %% Delete all files and/or folders
 for i = 1:numel(filenames)
     if isfolder(filenames{i})
