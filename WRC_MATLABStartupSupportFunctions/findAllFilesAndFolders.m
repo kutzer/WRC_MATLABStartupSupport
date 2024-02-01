@@ -22,7 +22,7 @@ function [fNames,fTypes] = findAllFilesAndFolders(pName,pIgnore)
 %   Example(s)
 %       pName = 'C:\Users\Student';
 %       pIgnore = {'AppData'}
-%       fNames = findAllFilesAndFolders(pName,pIgnore);
+%       [fNames,fTypes] = findAllFilesAndFolders(pName,pIgnore);
 %
 %   M. Kutzer, 01Feb2024, USNA
 
