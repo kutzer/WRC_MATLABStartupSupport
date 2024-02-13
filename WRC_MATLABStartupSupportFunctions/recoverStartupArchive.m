@@ -57,6 +57,7 @@ excludeDates = searchDates(tfDates);
 wFig = 310;
 hFig = 320;
 uiInfo.fig = uifigure('Name','Select Archive Search Range','Position',[600,600,wFig,hFig]);
+centerFigure(uiInfo.fig);
 
 % Create date selection panel
 wPnl0_d = 10;
@@ -94,6 +95,7 @@ hBtn = 25;
 uiInfo.button = uibutton(uiInfo.pnl_t,'Push','Text','Recover Files',...
     'FontWeight','bold','Position',[wPnl_t-wBtn-wBtn0,hBtn0,wBtn,hBtn],...
     'ButtonPushedFcn',@recoverFileCallback);
+
 end
 
 %% Internal functions
@@ -149,10 +151,18 @@ fnames = uiInfo.fnames(uiInfo.tfDateSelect);
 uiInfo.tfTimeSelect = uiInfo.timeOptions == uiInfo.timeSelect;
 fnames = fnames(uiInfo.tfTimeSelect);
 
-% Check filenames
-fnames
-
 % Copy file
+source = fnames{1};
+[~,bname,~] = fileparts(source);
+destination = fullfile(userpath,[bname,'.zip']);
+[tf,msg] = copyfile(source,destination);
+
+% Unzip file
+cleanUnzip(destination);
+
+% TODO - consolidate files into folder
+
+% TODO - open folder location
 
 % Delete figure
 delete(uiInfo.fig);
