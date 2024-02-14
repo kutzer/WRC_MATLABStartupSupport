@@ -1,16 +1,28 @@
-function fnames = cleanUnzip(zipName)
+function [unzipPath,fnames] = cleanUnzip(zipName)
 % CLEANUNZIP unzips a specified *.zip file and all *.zip files contained
 % within, then deletes the specified *.zip files.
 %
 %   cleanUnzip(zipName)
 %
+%   [unzipPath] = cleanUnzip(zipName)
+%
+%   [unzipPath,fnames] = cleanUnzip(zipName)
+%
 %   Input(s)
 %       zipName - character array specifying full zip file path
 %
 %   Output(s)
+%       unzipPath - character array specifying path containing unzipped
+%                   files.
+%          fnames - cell array specifying full file path for all unzipped
+%                   files.
 %       
 %
 %   M. Kutzer, 13Feb2024, USNA
+
+% Update(s)
+%   14Feb2024 - Added unzipPath as function output and updated
+%               documentation
 
 debug = false;
 
