@@ -26,7 +26,8 @@ end
 i = 0;
 destination0 = destination;
 while isfolder(destination)
-    destination = sprintf('%s (%d)',destination0);
+    i = i+1;
+    destination = sprintf('%s (%d)',destination,i);
 end
 
 if ~matches(destination,destination0)
@@ -69,9 +70,10 @@ for i = 1:numel(flds)
         [tf,msg,msgID] = copyfile(fname_src, fname_dst);
         if ~tf
             fprintf([...
-                'Unable to copy the following file:\n',...
-                '\t"%s"\n',...
-                '%s\n'],fname_src,msg);
+                'Unable to copy file:\n',...
+                '\tFrom: "%s"\n',...
+                '\t  To: "%s"\n',...
+                '%s\n'],fname_src,fname_dst,msg);
             continue
         end
         
