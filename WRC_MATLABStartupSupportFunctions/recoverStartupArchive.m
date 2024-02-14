@@ -34,6 +34,7 @@ dateOnly = dateshift(dateInfo,'Start','Day');
 timeOnly = timeofday(dateInfo);
 
 %% Package in global variable
+uiInfo.dateInfo = dateInfo;
 uiInfo.dateOnly = dateOnly;
 uiInfo.timeOnly = timeOnly;
 uiInfo.fnames = fnames;
@@ -146,10 +147,12 @@ fprintf('Recover File\n')
 
 % Down-select files by date
 fnames = uiInfo.fnames(uiInfo.tfDateSelect);
+fdatetimes = uiInfo.dateInfo(uiInfo.tfDateSelect);
 
 % Define times for given date
 uiInfo.tfTimeSelect = uiInfo.timeOptions == uiInfo.timeSelect;
 fnames = fnames(uiInfo.tfTimeSelect);
+fdatetimes = fdatetimes(uiInfo.tfTimeSelect);
 
 % Copy file
 source = fnames{1};
@@ -160,7 +163,14 @@ destination = fullfile(userpath,[bname,'.zip']);
 % Unzip file
 cleanUnzip(destination);
 
-% TODO - consolidate files into folder
+% Consolidate files into folder
+% -> Define source
+source = destination;
+% -> Define destination
+pname = sprintf('recoveredFiles_%s',string(fdatetimes(1),'yy-MM-dd_HHmmss'));
+destination = fullfile(userpath,pname);
+% -> Consolidate files
+consolidateFiles(source,destination);
 
 % TODO - open folder location
 
