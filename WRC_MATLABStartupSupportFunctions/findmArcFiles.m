@@ -13,6 +13,12 @@ function [fnames,dateInfo] = findmArcFiles
 %
 %   M. Kutzer, 13Feb2024, USNA
 
+debug = false;
+
+if debug
+    fprintf('\nDEBUG: findmArcFiles.m\n');
+end
+
 %% Check input(s)
 narginchk(0,0);
 
@@ -50,5 +56,17 @@ for i = 1:numel(fnames)
     vals(1) = vals(1) + 2000;
     
     % Convert to date info
-    dateInfo = datetime(vals);
+    dateInfo(i) = datetime(vals);
+    
+    % Debug
+    if debug
+        fprintf('File %03d - %s\n',i,fnames{i});
+        fprintf('\t    Year: %04d\n',vals(1));
+        fprintf('\t   Month: %02d\n',vals(2));
+        fprintf('\t     Day: %02d\n',vals(3));
+        fprintf('\t    Hour: %02d\n',vals(4));
+        fprintf('\t  Minute: %02d\n',vals(5));
+        fprintf('\t  Second: %02d\n',vals(6));
+        fprintf('\tDateTime: %s\n',string(dateInfo(i)));
+    end
 end
