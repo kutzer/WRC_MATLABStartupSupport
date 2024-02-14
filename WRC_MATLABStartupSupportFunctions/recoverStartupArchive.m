@@ -21,11 +21,30 @@ global uiInfo
 
 varargout = {};
 
+%% Internal debug flag
+debug = true;
+if debug
+    fprintf('\nDEBUG: recoverStartupArchive.m\n');
+end
+
 %% Check input(s)
 narginchk(0,0);
 
 %% Find all mArc files
+% Update user status
+fprintf('Finding available archive files...');
+% Find mArc files
 [fnames,dateInfo] = findmArcFiles;
+% Update user status
+fprintf('[%d FILES FOUND]\n',numel(fnames));
+
+% Debug
+if debug
+    for i = 1:numel(fnames)
+        fprintf('\tFile %03d - "%s"\n',i,fnames{i});
+        fprintf('\t%s%s\n',repmat(' ',1,11),string(dateInfo(i)));
+    end
+end
 
 %% Convert to date-only values
 dateOnly = dateshift(dateInfo,'Start','Day');
@@ -40,8 +59,8 @@ uiInfo.timeOnly = timeOnly;
 uiInfo.fnames = fnames;
 
 %% Define date range
-dateOnly0 = dateshift(min(dateOnly),'Start','Month');
-dateOnlyF = dateshift(max(dateOnly),'End','Month');
+dateOnly0 = dateshift(min(dateOnly)-1,'Start','Month');
+dateOnlyF = dateshift(max(dateOnly)+1,'End','Month');
 
 %% Define search dates
 searchDates = dateOnly0:dateOnlyF;
@@ -52,6 +71,34 @@ end
 tfDates = ~tfDates;
 
 excludeDates = searchDates(tfDates);
+
+% Debug
+if debug
+    fprintf('\tDates Considered:\n');
+    
+    idx = 0;
+    for i = 1:numel(searchDates)
+        fprintf('\t\t%s - ',string(searchDates(i)));
+        
+        if searchDates(i) == dateOnly0
+            fprintf('[LOWER LIMIT] - ');
+        end
+        
+        if searchDates(i) == dateOnlyF
+            fprintf('[UPPER LIMIT] - ');
+        end
+        
+        if tfDates(i)
+            fprintf('[EXCLUDED]\n');
+        else
+            idx = idx+1;
+            fprintf('"%s"\n',fnames{idx});
+        end
+    end
+end
+
+%% Update user status
+fprintf('Initializing recover archive UI...');
 
 %% Prompt user for date/time range
 % Create ui figure
@@ -72,7 +119,7 @@ uiInfo.pnl_d = uipanel(uiInfo.fig,'Title','Select Date','FontSize',12,...
 uiInfo.date = uidatepicker(uiInfo.pnl_d,'Position',[10 245 150 25],...
     'ValueChangedFcn',@dateSelectCallback);
 uiInfo.date.DisplayFormat = 'MM/dd/yyyy';
-uiInfo.date.Limits = [min(excludeDates),max(excludeDates)];
+uiInfo.date.Limits = [min(searchDates),max(searchDates)];
 uiInfo.date.DisabledDates = excludeDates;
 
 % Create time selection panel
@@ -96,6 +143,19 @@ hBtn = 25;
 uiInfo.button = uibutton(uiInfo.pnl_t,'Push','Text','Recover Files',...
     'FontWeight','bold','Position',[wPnl_t-wBtn-wBtn0,hBtn0,wBtn,hBtn],...
     'ButtonPushedFcn',@recoverFileCallback);
+
+drawnow
+
+%% Update user status
+fprintf('[DONE]\n');
+
+%% Wait until the figure is closed
+uiwait(uiInfo.fig);
+
+%% Package output(s)
+if nargout > 0
+    varargout{1} = uiInfo.pname;
+end
 
 end
 
@@ -158,21 +218,44 @@ fdatetimes = fdatetimes(uiInfo.tfTimeSelect);
 source = fnames{1};
 [~,bname,~] = fileparts(source);
 destination = fullfile(userpath,[bname,'.zip']);
-[tf,msg] = copyfile(source,destination);
+[tf,msg,msgID] = copyfile(source,destination);
+% -> Check for issue copying file
+if ~tf
+    error([...
+        'Unable to copy file:\n',...
+        '\tFrom: "%s"\n',...
+        '\t  To: "%s"\n',...
+        '%s'],source,destination,msg);
+end
 
 % Unzip file
-cleanUnzip(destination);
+unzipPath = cleanUnzip(destination);
 
 % Consolidate files into folder
 % -> Define source
-source = destination;
+source = unzipPath;
 % -> Define destination
 pname = sprintf('recoveredFiles_%s',string(fdatetimes(1),'yy-MM-dd_HHmmss'));
 destination = fullfile(userpath,pname);
 % -> Consolidate files
 consolidateFiles(source,destination);
 
-% TODO - open folder location
+% Delete unzip directory
+[tf,msg,msgID] = rmdir(unzipPath,'s');
+if ~tf
+    fprintf([...
+        'Unable to remove the following directory:\n',...
+        '\t%s\n',...
+        '%s\n]'],unzipPath,msg);
+end
+
+% Open folder location
+%winopen(destination)
+cmdStr = sprintf('start explorer "%s"',destination);
+system( cmdStr );
+
+% Package output(s)
+uiInfo.pname = destination;
 
 % Delete figure
 delete(uiInfo.fig);
