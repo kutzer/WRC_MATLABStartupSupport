@@ -9,6 +9,8 @@ function startup
 %       (2) This function is currently username-specific and will only run
 %           on accounts with the username "Student."
 %
+%   See also recoverStartupArchive
+%
 %   M. Kutzer, 17Jan2024, USNA
 
 global startupInfo %currentFolderTimer
