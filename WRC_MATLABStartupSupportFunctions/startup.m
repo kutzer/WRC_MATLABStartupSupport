@@ -32,6 +32,22 @@ switch lower( getenv('username') )
         startupInfo.DebugOn = true;
 end
 
+%% Check for other Windows users
+[allUsers,currentUser] = getSignedInUsers;
+if numel(allUsers) > 1
+    str = '';
+    for i = 1:numel(allUsers)
+        if ~matches(allUsers{i},currentUser)
+            str = sprintf('%s"%s", ',str,allUsers{i});
+        end
+    end
+    str = str(1:end-2);
+    warning([...
+        'Multiple users are logged in to this workstation: %s\n',...
+        ' -> Either ask your instructor to log out or consider ',...
+        'restarting the computer before proceeding.'],str);
+end
+    
 %% Close all open documents
 if ~startupInfo.DebugOn
     
