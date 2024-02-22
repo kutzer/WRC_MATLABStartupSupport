@@ -18,6 +18,9 @@ function closeMatlabEditor(closeUnsaved)
 %
 %   M. Kutzer, 18Jan2024, USNA
 
+% Updates
+%   22Feb2024 - Replaced method of closing editor
+
 %% Set defaults
 narginchk(0,1);
 if nargin < 1
@@ -25,6 +28,19 @@ if nargin < 1
 end
 
 %% Close all open documents in the editor
+% Get the main editor service
+edtSvc  = com.mathworks.mlservices.MLEditorServices;
+
+if closeUnsaved
+    % Close all editor windows without saving
+    edtSvc.getEditorApplication.closeNoPrompt;
+else
+    % Close all editor windows, prompting to save if necessary
+    edtSvc.getEditorApplication.close;
+end
+
+%% Close all open documents in the editor (OLD METHOD)
+%{
 % Acccess the editor Java object.
 desktop = com.mathworks.mde.desk.MLDesktop.getInstance;            % desktop object
 jEditor = desktop.getGroupContainer('Editor').getTopLevelAncestor; % editor object
@@ -48,3 +64,4 @@ for n = 1:D
         robot.keyRelease(java.awt.event.KeyEvent.VK_N); % release "N"
     end
 end
+%}
