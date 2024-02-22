@@ -28,24 +28,10 @@ switch lower( getenv('username') )
     case 'student'
         % Run startup function
     otherwise
-        fprintf('Actionable "startup.m" code only runs on the "Student" account\n -> Debugging\n');
+        fprintf([...
+            'Actionable "startup.m" code only runs on the "Student" account\n',...
+            '-> Debugging\n\n']);
         startupInfo.DebugOn = true;
-end
-
-%% Check for other Windows users
-[allUsers,currentUser] = getSignedInUsers;
-if numel(allUsers) > 1
-    str = '';
-    for i = 1:numel(allUsers)
-        if ~matches(allUsers{i},currentUser)
-            str = sprintf('%s"%s", ',str,allUsers{i});
-        end
-    end
-    str = str(1:end-2);
-    warning([...
-        'Multiple users are logged in to this workstation: %s\n',...
-        ' -> Either ask your instructor to log out or consider ',...
-        'restarting the computer before proceeding.'],str);
 end
     
 %% Close all open documents
@@ -109,6 +95,55 @@ end
 %% Delete directory contents
 if ~startupInfo.DebugOn
     deleteFiles(filenames);
+end
+
+%% Check for other Windows users
+[allUsers,currentUser] = getSignedInUsers;
+if numel(allUsers) > 1
+    str = '';
+    for i = 1:numel(allUsers)
+        if ~matches(allUsers{i},currentUser)
+            str = sprintf('\t(%02d) %s"%s"\n',i,str,allUsers{i});
+        end
+    end
+    emphStr = repmat('-',1,58);
+    fprintf(2,[...
+        '\n',...
+        '%s\n!!!!! Other users are logged in to this workstation !!!!!!\n%s\n',...
+        'Other usernames currently logged in:\n',...
+        '%s\n',...
+        ' -> Ask your instructor to log out of these accounts or\n',...
+        '    consider restarting the computer before proceeding.\n',...
+        '%s\n\n'],emphStr,emphStr,str,emphStr);
+end
+
+%% Check login time 
+try
+    userInfo = getUserInfo;
+    usernames = {userInfo(:).Username};
+    tfNames = matches(usernames,currentUser);
+    if nnz(tfNames) == 1
+        userInfo = userInfo(tfNames);
+        
+        logonTime = userInfo(1).LogonTime;
+    end
+catch
+    logonTime = [];
+end
+
+% TODO - do a better job of this hard-coded time between classes
+if isdatetime(logonTime)
+    startupTime = datetime(startupInfo.StartupTime,'ConvertFrom','datenum');
+    if (startupTime - logonTime) < minutes(10)
+        % Use logon time for file search
+        startupInfo.StartupTime = datenum(logonTime);
+    elseif (startupTime - logonTime) > hours(2)
+        fprintf(2,[...
+            '\nThis username has been logged in for %sours. ',...
+            'Consider logging out before proceeding.\n'],...
+            string((startupTime - logonTime),"h","fr_FR"));
+    end
+        
 end
 
 %% Create background figure
