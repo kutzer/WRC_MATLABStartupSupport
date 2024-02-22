@@ -10,6 +10,12 @@ function userInfo = getUserInfo
 %   Output(s)
 %       userInfo - structured array containing fields describing user
 %                  information returned by $env:USERNAME in PowerShell
+%           userInfo(i).Username    - character array containing username
+%           userInfo(i).SessionName - 
+%           userInfo(i).ID          -
+%           userInfo(i).State       -
+%           userInfo(i).IdleTime    -
+%           userInfo(i).LogonTime   - datetime value for last login time
 %
 %   M. Kutzer, 22Feb2024, USNA
 
