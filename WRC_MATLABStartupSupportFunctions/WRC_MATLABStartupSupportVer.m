@@ -18,7 +18,7 @@ function varargout = WRC_MATLABStartupSupportVer
 
 
 A.Name = 'WRC MATLAB Startup Support';
-A.Version = '1.0.1';
+A.Version = '1.0.2';
 A.Release = '(R2022a)';
 A.Date = '22-Feb-2024';
 A.URLVer = 1;
