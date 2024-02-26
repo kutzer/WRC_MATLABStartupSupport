@@ -17,6 +17,8 @@ function installWRC_MATLABStartupSupport(replaceExisting)
 %   M. Kutzer, 31Jan2024, USNA
 
 % Updates
+%   26Feb2024 - Updated to change the PowerShell execution policy to enable
+%               PowerShell scripts.
 
 % TODO - Allow users to create a local version if admin rights are not
 % possible.
@@ -168,3 +170,6 @@ savepath;
 fprintf('Rehashing Toolbox Cache...');
 rehash TOOLBOXCACHE
 fprintf('[Complete]\n');
+
+%% Update PowerShell execution policy
+updatePowerShellExecutionPolicy;
