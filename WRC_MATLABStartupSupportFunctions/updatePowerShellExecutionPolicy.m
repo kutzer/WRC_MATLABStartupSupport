@@ -19,6 +19,11 @@ function updatePowerShellExecutionPolicy
 %% Check input(s)
 narginchk(0,0);
 
+if ~ispc
+    warning('This function requires a Windows OS.');
+    return
+end
+
 %% Build PowerShell Command
 % Define your PowerShell command
 powershellCommand = 'Set-ExecutionPolicy RemoteSigned -Force';
