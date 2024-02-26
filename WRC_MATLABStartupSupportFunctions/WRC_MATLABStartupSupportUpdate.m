@@ -5,7 +5,8 @@ function WRC_MATLABStartupSupportUpdate
 %   M. Kutzer, 31Jan2024, USNA
 
 % Updates
-
+%   26Feb2024 - Updated "ToolboxUpdate" to attempt multiple times to remove
+%               temporary directory to account for PowerShell execution.
 
 % TODO - Find a location for Example SCRIPTS
 % TODO - update function for general operation
@@ -94,7 +95,19 @@ installToolbox(true);
 
 %% Move back to current directory and remove temp file
 cd(cpath);
-[ok,msg] = rmdir(pname,'s');
+ok = false;
+iter = 0;
+iterMAX = 10;
+while ~ok
+    % Attempt to remove temporary directory multiple times to account for
+    %   background PowerShell script
+    [ok,msg] = rmdir(pname,'s');
+    pause(0.05);
+    iter = iter+1;
+    if iter > 20
+        break
+    end
+end
 if ~ok
     warning('Unable to remove temporary download folder. %s',msg);
 end
