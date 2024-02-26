@@ -98,25 +98,28 @@ if ~startupInfo.DebugOn
 end
 
 %% Check for other Windows users
-[allUsers,currentUser] = getSignedInUsers;
-if numel(allUsers) > 1
-    str = '';
-    for i = 1:numel(allUsers)
-        if ~matches(allUsers{i},currentUser)
-            str = sprintf('\t(%02d) %s"%s"\n',i,str,allUsers{i});
+try
+    [allUsers,currentUser] = getSignedInUsers;
+    if numel(allUsers) > 1
+        str = '';
+        for i = 1:numel(allUsers)
+            if ~matches(allUsers{i},currentUser)
+                str = sprintf('\t(%02d) %s"%s"\n',i,str,allUsers{i});
+            end
         end
+        emphStr = repmat('-',1,58);
+        fprintf(2,[...
+            '\n',...
+            '%s\n!!!!! Other users are logged in to this workstation !!!!!!\n%s\n',...
+            'Other usernames currently logged in:\n',...
+            '%s\n',...
+            ' -> Ask your instructor to log out of these accounts or\n',...
+            '    consider restarting the computer before proceeding.\n',...
+            '%s\n\n'],emphStr,emphStr,str,emphStr);
     end
-    emphStr = repmat('-',1,58);
-    fprintf(2,[...
-        '\n',...
-        '%s\n!!!!! Other users are logged in to this workstation !!!!!!\n%s\n',...
-        'Other usernames currently logged in:\n',...
-        '%s\n',...
-        ' -> Ask your instructor to log out of these accounts or\n',...
-        '    consider restarting the computer before proceeding.\n',...
-        '%s\n\n'],emphStr,emphStr,str,emphStr);
+catch ME
+    fprintf('Unable to execute getSignedInUsers:\n\t"%s"\n',ME.message);
 end
-
 %% Check login time 
 try
     userInfo = getUserInfo;
@@ -127,21 +130,27 @@ try
         
         logonTime = userInfo(1).LogonTime;
     end
-catch
+catch ME
+    fprintf('Unable to execute getUserInfo:\n\t"%s"\n',ME.message);
     logonTime = [];
 end
 
 % TODO - do a better job of this hard-coded time between classes
+dt = hours(2);  % Limit duration to a 2-hour period
 if isdatetime(logonTime)
     startupTime = datetime(startupInfo.StartupTime,'ConvertFrom','datenum');
-    if (startupTime - logonTime) < minutes(10)
+    if (startupTime - logonTime) < dt
         % Use logon time for file search
         startupInfo.StartupTime = datenum(logonTime);
-    elseif (startupTime - logonTime) > hours(2)
+    elseif (startupTime - logonTime) >= dt
+        % Warn user
         fprintf(2,[...
-            '\nThis username has been logged in for %sours. ',...
-            'Consider logging out before proceeding.\n'],...
+            '\nThis username has been logged in for %sours.\n',...
+            ' -> In the future, consider logging out and logging back on before starting work.\n' ...
+            '    This will save time when compiling files when MATLAB closes.\n'],...
             string((startupTime - logonTime),"h","fr_FR"));
+        % Adjust time
+        startupInfo.StartupTime = datenum(startupTime - dt);
     end
         
 end
