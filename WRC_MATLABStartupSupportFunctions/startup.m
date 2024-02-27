@@ -139,6 +139,7 @@ try
 catch ME
     fprintf('Unable to execute getSignedInUsers:\n\t"%s"\n',ME.message);
 end
+
 %% Check login time 
 try
     userInfo = getUserInfo;
