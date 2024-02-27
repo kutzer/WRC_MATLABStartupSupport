@@ -29,4 +29,27 @@ s = 'abcdefghijklmnopqrstuvwxyz0123456789';
 n = numel(s); 
 
 % Generate random string
-rStr = s( round( rand(1,dim)*n ) );
+rStr = s( round( randNew(1,dim)*n ) );
+
+end
+%% Internal function(s)
+
+% -------------------------------------------------------------------------
+function valOut = randNew(valIn1,valIn2)
+
+% Generate scalar random number using rand.m
+rA = rand(valIn1,valIn2);
+
+% Generate scalar random-ish number based on seconds elapsed
+tf = datetime('now');
+t0 = dateshift(tf, 'start', 'minute');
+dt = tf - t0;
+rB = repmat(seconds(dt)/60,valIn1,valIn2);
+
+% Combine values
+r = (rA + rB)./2;
+
+% Define output
+valOut = r;
+
+end
