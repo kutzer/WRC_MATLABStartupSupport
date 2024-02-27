@@ -13,6 +13,10 @@ function startup
 %
 %   M. Kutzer, 17Jan2024, USNA
 
+% Updates
+%   27Feb2024 - Updated "filenames" initialization to {}.
+
+%% Define global variable(s)
 global startupInfo %currentFolderTimer
 
 %startupInfo.CurrentFolders = {};
@@ -66,7 +70,7 @@ zipName = sprintf('archive_%s',datestr(now,'yy-mm-dd_hhMMss'));
 
 %% Find contents of default working path
 d = dir(wd0);
-filenames = cell(1,numel(d)-2);
+filenames = {};%cell(1,numel(d)-2);
 j = 0;
 for i = 1:numel(d)
     switch d(i).name
@@ -85,16 +89,31 @@ for i = 1:numel(d)
 end
 
 %% Zip contents & change file extension
+tfArchiveMade = false;
 if ~isempty(filenames)
-    % Zip contents
-    zip(fullfile(wd1,zipName),filenames);
-    % Change file extension
-    zip2mArc(wd1,zipName);
+    try
+        % Zip contents
+        zip(fullfile(wd1,zipName),filenames);
+        % Change file extension
+        zip2mArc(wd1,zipName);
+        % Change archive flag
+        tfArchiveMade = true;
+    catch ME
+        fprintf([...
+            'Unable to create archive file: "%s"\n',...
+            '\t Archive Name: "%s"\n',...
+            '\tArchive Files:\n'],ME.message,fullfile(wd1,zipName));
+        for i = 1:numel(filenames)
+            fprintf('\t\tIs File: %d - "%s"\n',isfile(filenames{i}),filenames{i});
+        end
+    end
 end
 
 %% Delete directory contents
 if ~startupInfo.DebugOn
-    deleteFiles(filenames);
+    if tfArchiveMade
+        deleteFiles(filenames);
+    end
 end
 
 %% Check for other Windows users
@@ -146,8 +165,9 @@ if isdatetime(logonTime)
         % Warn user
         fprintf(2,[...
             '\nThis username has been logged in for %sours.\n',...
-            ' -> In the future, consider logging out and logging back on before starting work.\n' ...
-            '    This will save time when compiling files when MATLAB closes.\n'],...
+            ' -> Be sure to log out when you finish work!\n',...
+            ' -> If this persists, consider logging out and logging back on before starting work.\n' ...
+            '    Doing so will save time when compiling files when MATLAB closes.\n'],...
             string((startupTime - logonTime),"h","fr_FR"));
         % Adjust time
         startupInfo.StartupTime = datenum(startupTime - dt);
