@@ -81,8 +81,10 @@ for i = 1:numel(flds)
                     userInfo(j-1).(flds{i}) = userInfo(j-1).(flds{i})(2:end);
                 end
             case 'LogonTime'
+                infmt = 'M/d/yyyy h:mm a';
                 % Convert to datetime
-                userInfo(j-1).(flds{i}) = datetime(userInfo(j-1).(flds{i}));
+                userInfo(j-1).(flds{i}) = datetime(...
+                    userInfo(j-1).(flds{i}),'InputFormat',infmt);
         end
     end
     
