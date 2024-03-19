@@ -15,6 +15,7 @@ function startup
 
 % Updates
 %   27Feb2024 - Updated "filenames" initialization to {}.
+%   19Mar2024 - Updated to close camera calibrator
 
 %% Define global variable(s)
 global startupInfo %currentFolderTimer
@@ -317,6 +318,13 @@ catch ME
 end
 %}
 global startupInfo
+
+% Close MATLAB Camera Calibrator
+try
+    closeCameraCalibrator;
+catch ME
+    fprintf('Unable to close camera calibrator: "%s"\n',ME.message);
+end
 
 try
     % Define search start time
