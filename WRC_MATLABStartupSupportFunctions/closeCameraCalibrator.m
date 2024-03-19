@@ -8,7 +8,11 @@ function closeCameraCalibrator
 %
 %   M. Kutzer, 19Mar2024, USNA
 
-%%
+%% Use vision internal tools
+vision.internal.calibration.tool.CameraCalibrationTool.deleteAllToolsForce;
+
+%% JAVA approach (unstable)
+%{
 % Acccess the editor Java object.
 desktop = com.mathworks.mde.desk.MLDesktop.getInstance;	% desktop object
 
@@ -56,3 +60,4 @@ while true
     %}
     %end
 end
+%}
