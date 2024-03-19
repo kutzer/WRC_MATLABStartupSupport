@@ -12,15 +12,15 @@ function varargout = WRC_MATLABStartupSupportVer
 %             A.Release   : toolbox release string
 %             A.Date      : toolbox release date
 %
-%   M. Kutzer 31Jan2024, USNA
+%   M. Kutzer 19Mar2024, USNA
 
 % Updates
 
 
 A.Name = 'WRC MATLAB Startup Support';
-A.Version = '1.0.4';
+A.Version = '1.0.5';
 A.Release = '(R2022a)';
-A.Date = '27-Feb-2024';
+A.Date = '19-Mar-2024';
 A.URLVer = 1;
 
 msg{1} = sprintf('MATLAB %s Version: %s %s',A.Name, A.Version, A.Release);
