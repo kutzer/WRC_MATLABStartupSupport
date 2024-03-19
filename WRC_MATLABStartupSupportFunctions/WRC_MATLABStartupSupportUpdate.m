@@ -97,19 +97,19 @@ installToolbox(true);
 cd(cpath);
 ok = false;
 iter = 0;
-iterMAX = 10;
+iterMAX = 50;
 while ~ok
     % Attempt to remove temporary directory multiple times to account for
     %   background PowerShell script
     [ok,msg] = rmdir(pname,'s');
-    pause(0.05);
+    pause(0.10);
     iter = iter+1;
-    if iter > 20
+    if iter > iterMAX
         break
     end
 end
 if ~ok
-    warning('Unable to remove temporary download folder. %s',msg);
+    warning('Unable to remove temporary download folder (iter = iterMAX). %s',msg);
 end
 
 %% Complete installation
