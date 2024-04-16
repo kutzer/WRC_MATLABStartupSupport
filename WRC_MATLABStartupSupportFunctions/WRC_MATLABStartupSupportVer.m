@@ -18,9 +18,9 @@ function varargout = WRC_MATLABStartupSupportVer
 
 
 A.Name = 'WRC MATLAB Startup Support';
-A.Version = '1.0.5';
+A.Version = '1.0.6';
 A.Release = '(R2022a)';
-A.Date = '19-Mar-2024';
+A.Date = '16-Apr-2024';
 A.URLVer = 1;
 
 msg{1} = sprintf('MATLAB %s Version: %s %s',A.Name, A.Version, A.Release);
