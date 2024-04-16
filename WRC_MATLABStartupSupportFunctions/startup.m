@@ -16,6 +16,7 @@ function startup
 % Updates
 %   27Feb2024 - Updated "filenames" initialization to {}.
 %   19Mar2024 - Updated to close camera calibrator
+%   16Apr2024 - Updated to close all open figures and ignore EW452 login
 
 %% Define global variable(s)
 global startupInfo %currentFolderTimer
@@ -32,10 +33,14 @@ startupInfo.DebugOn = false;
 switch lower( getenv('username') )
     case 'student'
         % Run startup function
+    case 'ew452'
+        % Ignore startup
+        return
     otherwise
         fprintf([...
             'Actionable "startup.m" code only runs on the "Student" account\n',...
-            '-> Debugging\n\n']);
+            '-> Debugging\n\n',...
+            '-> Run "delete(gcf)" to disable file packaging on close.\n\n']);
         startupInfo.DebugOn = true;
 end
     
@@ -319,13 +324,25 @@ end
 %}
 global startupInfo
 
-% Close MATLAB Camera Calibrator
+% ---- Close MATLAB Camera Calibrator ----
 try
     closeCameraCalibrator;
 catch ME
     fprintf('Unable to close camera calibrator: "%s"\n',ME.message);
 end
 
+% ---- Close all figures ----
+try
+    figs = findall(0,'Type','Figure');
+    fNames = get(figs,'Name');
+    tf = matches(fNames,'startup.m');
+    delete(figs(~tf));
+    drawnow
+catch ME
+    fprintf('Unable to close all open figures: "%s"\n',ME.message);
+end
+
+% ---- Package new files ----
 try
     % Define search start time
     t0 = startupInfo.StartupTime;
