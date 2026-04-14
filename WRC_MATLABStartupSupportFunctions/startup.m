@@ -9,7 +9,7 @@ function startup
 %       (2) This function is currently username-specific and will only run
 %           on accounts with the username "Student."
 %
-%   See also recoverStartupArchive
+%   See also finish recoverStartupArchive
 %
 %   M. Kutzer, 17Jan2024, USNA
 
@@ -20,6 +20,8 @@ function startup
 %   14Apr2026 - Updated to killPreviews
 %   14Apr2026 - Updated to close new instance of MATLAB if it is already 
 %               open
+%   14Apr2026 - Migrated close camera calibrator, previews, and figures to
+%               finish.m
 
 %% Define global variable(s)
 global startupInfo %currentFolderTimer
@@ -335,27 +337,6 @@ catch ME
 end
 %}
 global startupInfo
-
-% ---- Close MATLAB Camera Calibrator ----
-try
-    closeCameraCalibrator;
-catch ME
-    fprintf('Unable to close camera calibrator: "%s"\n',ME.message);
-end
-
-% ---- Close all previews ----
-killPreviews;
-
-% ---- Close all figures ----
-try
-    figs = findall(0,'Type','Figure');
-    fNames = get(figs,'Name');
-    tf = matches(fNames,'startup.m');
-    delete(figs(~tf));
-    drawnow
-catch ME
-    fprintf('Unable to close all open figures: "%s"\n',ME.message);
-end
 
 % ---- Package new files ----
 try
