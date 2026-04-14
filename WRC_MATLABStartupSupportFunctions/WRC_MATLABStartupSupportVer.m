@@ -16,6 +16,9 @@ function varargout = WRC_MATLABStartupSupportVer
 
 % Updates
 %   02Feb2026 - Updated instructors
+%   14Apr2026 - Added kill previews to startup 
+%   14Apr2026 - Added close new instance of MATLAB if it is already open to
+%               startup
 
 A.Name = 'WRC MATLAB Startup Support';
 A.Version = '1.0.8';
