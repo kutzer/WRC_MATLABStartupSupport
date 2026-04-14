@@ -17,6 +17,9 @@ function startup
 %   27Feb2024 - Updated "filenames" initialization to {}.
 %   19Mar2024 - Updated to close camera calibrator
 %   16Apr2024 - Updated to close all open figures and ignore EW452 login
+%   14Apr2026 - Updated to killPreviews
+%   14Apr2026 - Updated to close new instance of MATLAB if it is already 
+%               open
 
 %% Define global variable(s)
 global startupInfo %currentFolderTimer
@@ -33,6 +36,15 @@ startupInfo.DebugOn = false;
 switch lower( getenv('username') )
     case 'student'
         % Run startup function
+
+        % Check for other instances of MATLAB & close current instance if
+        % they exist.
+        n = matlabInstances;
+        if n > 1
+            fprintf(2,'MATLAB is already open. Closing this instance.');
+            exit force
+        end
+
     case 'ew452'
         % Ignore startup
         return
@@ -330,6 +342,9 @@ try
 catch ME
     fprintf('Unable to close camera calibrator: "%s"\n',ME.message);
 end
+
+% ---- Close all previews ----
+killPreviews;
 
 % ---- Close all figures ----
 try
