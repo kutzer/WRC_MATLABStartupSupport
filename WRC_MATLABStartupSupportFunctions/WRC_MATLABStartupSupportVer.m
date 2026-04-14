@@ -19,9 +19,11 @@ function varargout = WRC_MATLABStartupSupportVer
 %   14Apr2026 - Added kill previews to startup 
 %   14Apr2026 - Added close new instance of MATLAB if it is already open to
 %               startup
+%   14Apr2026 - Migrated close camera calibrator, previews, and figures to
+%               finish.m
 
 A.Name = 'WRC MATLAB Startup Support';
-A.Version = '1.0.8';
+A.Version = '1.0.9';
 A.Release = '(R2022a)';
 A.Date = '14-Apr-2026';
 A.URLVer = 1;
