@@ -3,13 +3,36 @@ function closeCameraCalibrator
 %   closeCameraCalibrator()
 %
 %   Input(s)
-%   
+%       [NONE]
+%
 %   Output(s)
+%       [NONE]
 %
 %   M. Kutzer, 19Mar2024, USNA
 
+% Updates
+%   15Apr2026 - Updated to replace vision tools approach with a web window
+%               manager approach.
+
+%% Use Web Window Manager
+try
+    wm = matlab.internal.webwindowmanager.instance;
+    allWindows = wm.windowList;
+
+    for i = 1:numel(allWindows)
+        % Check for camera calibrator title
+        if contains(allWindows(i).Title,'Camera Calibrator')
+            allWindows(i).delete;
+        end
+    end
+catch ME
+    fprintf('Unable to close camera calibrator (closeCameraCalibrator.m): \n\n"%s"\n',ME.message);
+end
+
 %% Use vision internal tools
+%{
 vision.internal.calibration.tool.CameraCalibrationTool.deleteAllToolsForce;
+%}
 
 %% JAVA approach (unstable)
 %{
