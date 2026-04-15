@@ -21,11 +21,12 @@ function varargout = WRC_MATLABStartupSupportVer
 %               startup
 %   14Apr2026 - Migrated close camera calibrator, previews, and figures to
 %               finish.m
+%   15Apr2026 - Updated closeCameraCalibrator
 
 A.Name = 'WRC MATLAB Startup Support';
-A.Version = '1.0.9';
+A.Version = '1.1.0';
 A.Release = '(R2022a)';
-A.Date = '14-Apr-2026';
+A.Date = '15-Apr-2026';
 A.URLVer = 1;
 
 msg{1} = sprintf('MATLAB %s Version: %s %s',A.Name, A.Version, A.Release);
