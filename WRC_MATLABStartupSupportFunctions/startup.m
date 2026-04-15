@@ -39,14 +39,13 @@ switch lower( getenv('username') )
     case 'student'
         % Run startup function
 
-        % Check for other instances of MATLAB & close current instance if
-        % they exist.
+        % Check for other instances of MATLAB
+        % -> close current instance if they exist.
         n = matlabInstances;
         if n > 1
             fprintf(2,'MATLAB is already open. Closing this instance.');
             exit force
         end
-
     case 'ew452'
         % Ignore startup
         return
